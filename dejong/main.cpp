@@ -8,12 +8,12 @@
 // globals-ish - deal with it
 #define SCREEN_WIDTH 12000ll
 #define SCREEN_HEIGHT 9600ll
-#define SCREEN_SAMPLES 100ll
-#define SCREEN_QUALITY 10ll
+//#define SCREEN_QUALITY 16384ll
 #define SCREEN_EXPOSURE 1.0f
 #define SCREEN_OVERSAMPLE 0.3f
 
-#define ITERATION_COUNT (SCREEN_WIDTH * SCREEN_HEIGHT * SCREEN_QUALITY * SCREEN_SAMPLES)
+// #define ITERATION_COUNT ((SCREEN_WIDTH * SCREEN_HEIGHT) * SCREEN_QUALITY)
+#define ITERATION_COUNT (3141592653589ll)
 
 // zoom factor : 1.0 = standard, 2.0 = 2x zoom
 #define X_ZOOM 1.0f
@@ -30,7 +30,6 @@
 #define C -1.74762f
 #define D  2.45849f
 
-
 time_t startTime;
 float **Screen;
 
@@ -38,7 +37,7 @@ float **Screen;
 pthread_mutex_t mutexIter;
 unsigned long long iterations = ITERATION_COUNT;
 unsigned long long progress = 0;
-#define LOOP_PER_THREAD 100000000
+#define LOOP_PER_THREAD 10000000
 #define THREAD_COUNT 2
 pthread_t threads[THREAD_COUNT];
 void *threadStatus;
@@ -48,6 +47,29 @@ void *threadStatus;
 #define C  2.93583f
 #define D  0.34251f
 */
+
+char *commaprint(unsigned long long n)
+{
+  static int comma = ',';
+  static char retbuf[30];
+  char *p = &retbuf[sizeof(retbuf)-1];
+  int i = 0;
+
+  *p = '\0';
+
+  do {
+    if(i%3 == 0 && i != 0)
+      *--p = comma;
+    *--p = '0' + n % 10;
+    n /= 10;
+    i++;
+  } while(n != 0);
+
+  return p;
+}
+
+
+
 
 float frand(float randmin, float randmax)
 {
@@ -137,9 +159,9 @@ void normalize(float **screen, int rangemax)
 	
 	printf("Maxima: %0.2f and average %0.2f over %ld samples\n", maxima, average, avg_count);
 
-	printf("Normalizing 0-%0.2f to screen to range 0-%d\n", maxima, rangemax);
+	printf("Normalizing 0-%0.2f to screen range 0-%d\n", maxima, rangemax);
 	maxima *= SCREEN_OVERSAMPLE;
-	
+	maxima = logf(maxima) * logf(maxima);
 	float scaleFactor = (float)rangemax / (float)maxima;
 	
 	{
@@ -147,7 +169,8 @@ void normalize(float **screen, int rangemax)
 		{
 			float *row = screen[y];
 			for(int x = 0; x < SCREEN_WIDTH; x++)
-				row[x] *= scaleFactor;
+				if(row[x] > 0)
+					row[x] = logf(row[x]) * logf(row[x]) * scaleFactor;
 		}
 	}
 }
@@ -231,7 +254,7 @@ void *threadWorker(void* x)
       currentTime[strlen(currentTime) - 1] = '\0';
       etaTime = strdup(ctime(&endTime));
       etaTime[strlen(etaTime) - 1] = '\0';
-      printf("[%s] %3.2f%% loop %lldmm ETA [%s]\n", currentTime, donePercent * 100.0f, progress/1000000, etaTime);
+      printf("[%s] %3.2f%% loop %lldmm ETA [%s]\n", currentTime, donePercent * 100.000f, progress/1000000, etaTime);
       free(currentTime);
       free(etaTime);
     }
@@ -258,13 +281,14 @@ void *threadWorker(void* x)
 
 int main (int argc, char * const argv[]) {
 	int t;
+
 	printf("starting up...");
 	Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
 	printf("DONE!\n");
 	
 	
 	startTime = time(NULL);
-	printf("Starting %llu iterations...\n", (unsigned long long)ITERATION_COUNT);
+	printf("Starting %s iterations...\n", commaprint((unsigned long long)ITERATION_COUNT));
 
 	pthread_mutex_init(&mutexIter, NULL);
 	pthread_attr_t attr;
