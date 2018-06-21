@@ -6,14 +6,14 @@
 #include <pthread.h>
 
 // globals-ish - deal with it
-#define SCREEN_WIDTH 12000ll
-#define SCREEN_HEIGHT 9600ll
-//#define SCREEN_QUALITY 16384ll
+#define SCREEN_WIDTH 12000
+#define SCREEN_HEIGHT 9600
+//#define SCREEN_QUALITY 16384
 #define SCREEN_EXPOSURE 1.0f
 #define SCREEN_OVERSAMPLE 0.3f
 
 // #define ITERATION_COUNT ((SCREEN_WIDTH * SCREEN_HEIGHT) * SCREEN_QUALITY)
-#define ITERATION_COUNT (3141592653589ll)
+#define ITERATION_COUNT 3141592653589
 
 // zoom factor : 1.0 = standard, 2.0 = 2x zoom
 #define X_ZOOM 1.0f
@@ -35,8 +35,8 @@ float **Screen;
 
 // lock this when changing iterations
 pthread_mutex_t mutexIter;
-unsigned long long iterations = ITERATION_COUNT;
-unsigned long long progress = 0;
+int64_t iterations = ITERATION_COUNT;
+int64_t progress = 0;
 #define LOOP_PER_THREAD 10000000
 #define THREAD_COUNT 2
 pthread_t threads[THREAD_COUNT];
@@ -48,7 +48,7 @@ void *threadStatus;
 #define D  0.34251f
 */
 
-char *commaprint(unsigned long long n)
+char *commaprint(int64_t n)
 {
   static int comma = ',';
   static char retbuf[30];
@@ -135,7 +135,7 @@ void normalize(float **screen, int rangemax)
 	printf("Finding maxima and zero-weighted average\n");
 	float maxima = -1.0;
 	double avg_total = 0.0;
-	unsigned long avg_count;
+	unsigned long avg_count = 0;
 	{
 		for(int y = 0; y < SCREEN_HEIGHT; y++)
 		{
@@ -224,7 +224,7 @@ void iterate(unsigned long loopCount)
 
 void *threadWorker(void* x)
 {
-  int whichThread = (int) x;
+  int whichThread = (int)(size_t)x;
 	// lock iteration mutex
 	// atomic get count + decrement by LOOP_PER_THREAD or remaining iterations
 	// unlock mutex
@@ -280,7 +280,7 @@ void *threadWorker(void* x)
 }
 
 int main (int argc, char * const argv[]) {
-	int t;
+	uintptr_t t;
 
 	printf("starting up...");
 	Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -288,7 +288,7 @@ int main (int argc, char * const argv[]) {
 	
 	
 	startTime = time(NULL);
-	printf("Starting %s iterations...\n", commaprint((unsigned long long)ITERATION_COUNT));
+	printf("Starting %s iterations...\n", commaprint((int64_t)ITERATION_COUNT));
 
 	pthread_mutex_init(&mutexIter, NULL);
 	pthread_attr_t attr;
@@ -307,7 +307,7 @@ int main (int argc, char * const argv[]) {
 #endif
 	
 	normalize(Screen, 255);
-	dumpPPM(Screen, "outfile.ppm");
+	dumpPPM(Screen, (char *)"outfile.ppm");
 
 	// clean up mutex, shut down pthreads
 	pthread_mutex_destroy(&mutexIter);
