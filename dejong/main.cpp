@@ -38,7 +38,9 @@ pthread_mutex_t mutexIter;
 int64_t iterations = ITERATION_COUNT;
 int64_t progress = 0;
 #define LOOP_PER_THREAD 10000000
+#ifndef THREAD_COUNT
 #define THREAD_COUNT 2
+#endif
 pthread_t threads[THREAD_COUNT];
 void *threadStatus;
 /*
@@ -281,6 +283,8 @@ void *threadWorker(void* x)
 
 int main (int argc, char * const argv[]) {
 	uintptr_t t;
+
+	printf("Compiled with %d thread parallelism\n", THREAD_COUNT);
 
 	printf("starting up...");
 	Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
