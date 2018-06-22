@@ -48,8 +48,7 @@ int64_t progress = 0;
 #define D  0.34251f
 */
 
-char *commaprint(int64_t n)
-{
+char *commaprint(int64_t n) {
   static int comma = ',';
   static char retbuf[30];
   char *p = &retbuf[sizeof(retbuf)-1];
@@ -58,8 +57,9 @@ char *commaprint(int64_t n)
   *p = '\0';
 
   do {
-    if(i%3 == 0 && i != 0)
+    if(i%3 == 0 && i != 0) {
       *--p = comma;
+    }
     *--p = '0' + n % 10;
     n /= 10;
     i++;
@@ -68,11 +68,7 @@ char *commaprint(int64_t n)
   return p;
 }
 
-
-
-
-float frand(float randmin, float randmax)
-{
+float frand(float randmin, float randmax) {
   // determine width of range
   float floatrange = randmax - randmin;
   // get random value
@@ -83,9 +79,7 @@ float frand(float randmin, float randmax)
   return  retval + randmin;
 }
 
-inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned long intMax)
-{
-
+inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned long intMax) {
   // total width of range
   float valRange = rMax - rMin;
 
@@ -96,33 +90,31 @@ inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned lo
   return (unsigned long) ( (float)intMax * rangePercent);
 }
 
-void * mycalloc ( size_t num, size_t size )
-{
+void * mycalloc ( size_t num, size_t size ) {
   void *retVal = calloc(num, size);
-  if(retVal == NULL)
+  if(retVal == NULL) {
     printf("FAILED\n");
+  }
   return retVal;
 }
 
-float **allocateFractal(long width, long height)
-{
+float **allocateFractal(long width, long height) {
   float **retPointer = (float **)mycalloc(height, sizeof(float *));
-  if(retPointer != NULL)
-  {
-    for(int i = 0; i < height; i++)
-    {
+  if(retPointer != NULL) {
+    for(int i = 0; i < height; i++) {
       retPointer[i] = (float *)mycalloc(width, sizeof(float));
-      if(retPointer[i] == NULL)
+      if(retPointer[i] == NULL) {
         exit(1);
-      for(int j = 0; j < width; j++)
+      }
+      for(int j = 0; j < width; j++) {
         retPointer[i][j] = 0.0;
+      }
     }
   }
   return retPointer;
 }
 
-inline void plot(float fx, float fy)
-{
+inline void plot(float fx, float fy) {
   // scale x and y (both range +/- 2) to fit screen
   int y = scaleToRange(fy, Y_RANGE_MIN, Y_RANGE_MAX, SCREEN_HEIGHT);
   float *row = Screen[y];
@@ -130,27 +122,21 @@ inline void plot(float fx, float fy)
   row[x] += SCREEN_EXPOSURE;
 }
 
-void normalize(float **screen, int rangemax)
-{
+void normalize(float **screen, int rangemax) {
   printf("Finding maxima and zero-weighted average\n");
   float maxima = -1.0;
   double avg_total = 0.0;
   unsigned long avg_count = 0;
-  {
-    for(int y = 0; y < SCREEN_HEIGHT; y++)
-    {
-      float *row = screen[y];
-      for(int x = 0; x < SCREEN_WIDTH; x++)
-      {
-        float pixel = row[x];
-        if(pixel != 0)
-        {
-          avg_count ++;
-          avg_total += (double)pixel;
-          if(pixel > maxima)
-            maxima = pixel;
+  for(int y = 0; y < SCREEN_HEIGHT; y++) {
+    float *row = screen[y];
+    for(int x = 0; x < SCREEN_WIDTH; x++) {
+      float pixel = row[x];
+      if(pixel != 0) {
+        avg_count ++;
+        avg_total += (double)pixel;
+        if(pixel > maxima) {
+          maxima = pixel;
         }
-
       }
     }
   }
@@ -164,35 +150,29 @@ void normalize(float **screen, int rangemax)
   maxima = logf(maxima) * logf(maxima);
   float scaleFactor = (float)rangemax / (float)maxima;
 
-  {
-    for(int y = 0; y < SCREEN_HEIGHT; y++)
-    {
-      float *row = screen[y];
-      for(int x = 0; x < SCREEN_WIDTH; x++)
-        if(row[x] > 0)
-          row[x] = logf(row[x]) * logf(row[x]) * scaleFactor;
+  for(int y = 0; y < SCREEN_HEIGHT; y++) {
+    float *row = screen[y];
+    for(int x = 0; x < SCREEN_WIDTH; x++) {
+      if(row[x] > 0) {
+        row[x] = logf(row[x]) * logf(row[x]) * scaleFactor;
+      }
     }
   }
 }
 
-void dumpPPM(float **screen, char *filename)
-{
+void dumpPPM(float **screen, char *filename) {
   FILE *outfile = fopen(filename, "wb");
   fprintf(outfile, "P6\n%d %d\n255\n", (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
 
-  for(int y = 0; y < SCREEN_HEIGHT; y++)
-  {
+  for(int y = 0; y < SCREEN_HEIGHT; y++) {
     float *row = screen[y];
-    for(int x = 0; x < SCREEN_WIDTH; x++)
-    {
+    for(int x = 0; x < SCREEN_WIDTH; x++) {
       int outVal = 255 - (int)row[x];
-      if(outVal > 255)
-      {
+      if(outVal > 255) {
 //        printf("overflow at %d, %d [%d]\n", x, y, outVal);
         outVal = 255;
       }
-      if(outVal < 0)
-      {
+      if(outVal < 0) {
 //        printf("underflow at %d, %d [%d]\n", x, y, outVal);
         outVal = 0;
       }
@@ -204,14 +184,12 @@ void dumpPPM(float **screen, char *filename)
   fclose(outfile);
 }
 
-void iterate(unsigned long loopCount)
-{
+void iterate(unsigned long loopCount) {
   float oldX = frand(-2.0, 2.0);
   float oldY = frand(-2.0, 2.0);
   float newX, newY;
 
-  for(unsigned long i = 0; i < loopCount; i++)
-  {
+  for(unsigned long i = 0; i < loopCount; i++) {
     newX = sin(A * oldY) - cos(B * oldX);
     newY = sin(C * oldX) - cos(D * oldY);
     plot(newX, newY);
@@ -222,8 +200,7 @@ void iterate(unsigned long loopCount)
   }
 }
 
-void *threadWorker(void* x)
-{
+void *threadWorker(void* x) {
   int whichThread = (int)(size_t)x;
   // lock iteration mutex
   // atomic get count + decrement by LOOP_PER_THREAD or remaining iterations
@@ -233,22 +210,25 @@ void *threadWorker(void* x)
 
   unsigned long count;
 
-  if(LOOP_PER_THREAD > iterations)
+  if(LOOP_PER_THREAD > iterations) {
     count = iterations;
-  else
+  } else {
     count = LOOP_PER_THREAD;
+  }
 
   while(iterations) {
     iterate(count);
 
-  if(whichThread == 0) {
+    if(whichThread == 0) {
       // output status message
       char *currentTime, *etaTime;
       float donePercent = (float)((double)progress / (double)ITERATION_COUNT);
       time_t nowTime = time(NULL);
       int diffTime = nowTime - startTime;
       time_t endTime = (time_t)((float)diffTime / (float)donePercent);
-      if(endTime < 0) continue;
+      if(endTime < 0) {
+        continue;
+      }
       endTime += startTime;
       currentTime = strdup(ctime(&nowTime));
       currentTime[strlen(currentTime) - 1] = '\0';
@@ -259,10 +239,11 @@ void *threadWorker(void* x)
       free(etaTime);
     }
     pthread_mutex_lock (&mutexIter);
-    if(LOOP_PER_THREAD > iterations)
+    if(LOOP_PER_THREAD > iterations) {
       count = iterations;
-    else
+    } else {
       count = LOOP_PER_THREAD;
+    }
     iterations -= count;
     progress += count;
     pthread_mutex_unlock (&mutexIter);
@@ -283,7 +264,6 @@ int main (int argc, char * const argv[]) {
   Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
   printf("DONE!\n");
 
-
   startTime = time(NULL);
   printf("Starting %s iterations...\n", commaprint((int64_t)ITERATION_COUNT));
 
@@ -292,13 +272,15 @@ int main (int argc, char * const argv[]) {
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-  for(t = 0; t < THREAD_COUNT; t++)
+  for(t = 0; t < THREAD_COUNT; t++) {
     pthread_create(&threads[t], &attr, threadWorker, (void *)t);
-   pthread_attr_destroy(&attr);
+  }
+  pthread_attr_destroy(&attr);
 
   /* Wait on the other threads */
-  for(t = 0; t < THREAD_COUNT; t++)
+  for(t = 0; t < THREAD_COUNT; t++) {
     pthread_join(threads[t], &threadStatus);
+  }
 
   normalize(Screen, 255);
   dumpPPM(Screen, (char *)"outfile.ppm");
