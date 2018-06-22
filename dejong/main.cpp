@@ -217,7 +217,7 @@ void *threadWorker(void* x) {
     count = LOOP_PER_THREAD;
   }
 
-  while(iterations) {
+  while(iterations > 0) {
     iterate(count);
 
     if(whichThread == 0) {
@@ -253,7 +253,7 @@ void *threadWorker(void* x) {
   pthread_exit((void*)nullptr);
 }
 
-int main (int argc, char * const argv[]) {
+int main (int  /*argc*/, char * const  /*argv*/[]) {
   int64_t t;
 
   pthread_t threads[THREAD_COUNT];
