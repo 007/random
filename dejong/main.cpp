@@ -1,9 +1,9 @@
+#include <math.h>
+#include <memory.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
-#include <math.h>
 #include <time.h>
-#include <pthread.h>
 
 // globals-ish - deal with it
 #define SCREEN_WIDTH 12000
