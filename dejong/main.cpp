@@ -17,7 +17,7 @@
 #define SCREEN_OVERSAMPLE 0.3f
 
 // #define ITERATION_COUNT ((SCREEN_WIDTH * SCREEN_HEIGHT) * SCREEN_QUALITY)
-#define ITERATION_COUNT 3141592653589
+#define ITERATION_COUNT 3##141##592##653##589
 
 // zoom factor : 1.0 = standard, 2.0 = 2x zoom
 #define X_ZOOM 1.0f
@@ -41,7 +41,7 @@ float **Screen;
 pthread_mutex_t mutexIter;
 int64_t iterations = ITERATION_COUNT;
 int64_t progress = 0;
-#define LOOP_PER_THREAD 10000000
+#define LOOP_PER_THREAD 10##000##000
 /*
 #define A -2.25270f
 #define B -4.45858f
@@ -202,7 +202,7 @@ void iterate(uint64_t loopCount) {
 }
 
 void *threadWorker(void* x) {
-  int whichThread = (int)(size_t)x;
+  size_t whichThread = (size_t)x;
   // lock iteration mutex
   // atomic get count + decrement by LOOP_PER_THREAD or remaining iterations
   // unlock mutex
@@ -235,7 +235,7 @@ void *threadWorker(void* x) {
       currentTime[strlen(currentTime) - 1] = '\0';
       etaTime = strdup(ctime(&endTime));
       etaTime[strlen(etaTime) - 1] = '\0';
-      printf("[%s] %3.2f%% loop %ldmm ETA [%s]\n", currentTime, donePercent * 100.000f, progress/1000000, etaTime);
+      printf("[%s] %3.2f%% loop %smm ETA [%s]\n", currentTime, donePercent * 100.000f, commaprint(progress/1000000), etaTime);
       free(currentTime);
       free(etaTime);
     }
