@@ -26,8 +26,8 @@
 #define Y_RANGE_MAX (2.1f / Y_ZOOM)
 
 #define A  1.37029f
-#define B -5.03617f
-#define C -1.74762f
+#define B (-5.03617f)
+#define C (-1.74762f)
 #define D  2.45849f
 
 time_t startTime;
