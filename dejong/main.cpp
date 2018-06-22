@@ -92,7 +92,7 @@ inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned lo
 
 void * mycalloc ( size_t num, size_t size ) {
   void *retVal = calloc(num, size);
-  if(retVal == NULL) {
+  if(retVal == nullptr) {
     printf("FAILED\n");
   }
   return retVal;
@@ -100,10 +100,10 @@ void * mycalloc ( size_t num, size_t size ) {
 
 float **allocateFractal(long width, long height) {
   float **retPointer = (float **)mycalloc(height, sizeof(float *));
-  if(retPointer != NULL) {
+  if(retPointer != nullptr) {
     for(int i = 0; i < height; i++) {
       retPointer[i] = (float *)mycalloc(width, sizeof(float));
-      if(retPointer[i] == NULL) {
+      if(retPointer[i] == nullptr) {
         exit(1);
       }
       for(int j = 0; j < width; j++) {
@@ -223,7 +223,7 @@ void *threadWorker(void* x) {
       // output status message
       char *currentTime, *etaTime;
       float donePercent = (float)((double)progress / (double)ITERATION_COUNT);
-      time_t nowTime = time(NULL);
+      time_t nowTime = time(nullptr);
       int diffTime = nowTime - startTime;
       time_t endTime = (time_t)((float)diffTime / (float)donePercent);
       if(endTime < 0) {
@@ -249,7 +249,7 @@ void *threadWorker(void* x) {
     pthread_mutex_unlock (&mutexIter);
   }
   printf("*****thread exiting*****\n");
-  pthread_exit((void*)0);
+  pthread_exit((void*)nullptr);
 }
 
 int main (int argc, char * const argv[]) {
@@ -264,10 +264,10 @@ int main (int argc, char * const argv[]) {
   Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
   printf("DONE!\n");
 
-  startTime = time(NULL);
+  startTime = time(nullptr);
   printf("Starting %s iterations...\n", commaprint((int64_t)ITERATION_COUNT));
 
-  pthread_mutex_init(&mutexIter, NULL);
+  pthread_mutex_init(&mutexIter, nullptr);
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -287,6 +287,6 @@ int main (int argc, char * const argv[]) {
 
   // clean up mutex, shut down pthreads
   pthread_mutex_destroy(&mutexIter);
-  pthread_exit(NULL);
+  pthread_exit(nullptr);
   return 0;
 }
