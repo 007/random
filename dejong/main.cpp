@@ -256,7 +256,7 @@ void *threadWorker(void* x)
       currentTime[strlen(currentTime) - 1] = '\0';
       etaTime = strdup(ctime(&endTime));
       etaTime[strlen(etaTime) - 1] = '\0';
-      printf("[%s] %3.2f%% loop %lldmm ETA [%s]\n", currentTime, donePercent * 100.000f, progress/1000000, etaTime);
+      printf("[%s] %3.2f%% loop %ldmm ETA [%s]\n", currentTime, donePercent * 100.000f, progress/1000000, etaTime);
       free(currentTime);
       free(etaTime);
     }
@@ -282,7 +282,7 @@ void *threadWorker(void* x)
 }
 
 int main (int argc, char * const argv[]) {
-	uintptr_t t;
+	int64_t t;
 
 	printf("Compiled with %d thread parallelism\n", THREAD_COUNT);
 
