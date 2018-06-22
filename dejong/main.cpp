@@ -191,12 +191,12 @@ void iterate(uint64_t loopCount) {
   float newX, newY;
 
   for(uint64_t i = 0; i < loopCount; i++) {
-    newX = sin(A * oldY) - cos(B * oldX);
-    newY = sin(C * oldX) - cos(D * oldY);
+    newX = std::sin(A * oldY) - std::cos(B * oldX);
+    newY = std::sin(C * oldX) - std::cos(D * oldY);
     plot(newX, newY);
 
-    oldX = sin(A * newY) - cos(B * newX);
-    oldY = sin(C * newX) - cos(D * newY);
+    oldX = std::sin(A * newY) - std::cos(B * newX);
+    oldY = std::sin(C * newX) - std::cos(D * newY);
     plot(oldX, oldY);
   }
 }
