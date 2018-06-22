@@ -5,6 +5,9 @@
 #include <ctime>
 #include <memory.h>
 #include <pthread.h>
+#include <thread>
+#include <unistd.h>
+#include <vector>
 
 // globals-ish - deal with it
 #define SCREEN_WIDTH 12000
@@ -39,9 +42,6 @@ pthread_mutex_t mutexIter;
 int64_t iterations = ITERATION_COUNT;
 int64_t progress = 0;
 #define LOOP_PER_THREAD 10000000
-#ifndef THREAD_COUNT
-#define THREAD_COUNT 2
-#endif
 /*
 #define A -2.25270f
 #define B -4.45858f
@@ -256,10 +256,20 @@ void *threadWorker(void* x) {
 int main (int  /*argc*/, char * const  /*argv*/[]) {
   int64_t t;
 
-  pthread_t threads[THREAD_COUNT];
+  unsigned parallelism = std::thread::hardware_concurrency();
+
+  if (parallelism < 1) {
+    parallelism = sysconf(_SC_NPROCESSORS_ONLN);
+  }
+
+  if (parallelism < 1) {
+    parallelism = 2;
+  }
+
+  std::vector<pthread_t> threads(parallelism);
   void *threadStatus;
 
-  printf("Compiled with %d thread parallelism\n", THREAD_COUNT);
+  printf("Detected %d thread parallelism\n", parallelism);
 
   printf("starting up...");
   Screen = allocateFractal(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -273,13 +283,13 @@ int main (int  /*argc*/, char * const  /*argv*/[]) {
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-  for(t = 0; t < THREAD_COUNT; t++) {
+  for(t = 0; t < parallelism; t++) {
     pthread_create(&threads[t], &attr, threadWorker, (void *)t);
   }
   pthread_attr_destroy(&attr);
 
   /* Wait on the other threads */
-  for(t = 0; t < THREAD_COUNT; t++) {
+  for(t = 0; t < parallelism; t++) {
     pthread_join(threads[t], &threadStatus);
   }
 
