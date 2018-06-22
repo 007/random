@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -79,7 +80,7 @@ float frand(float randmin, float randmax) {
   return  retval + randmin;
 }
 
-inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned long intMax) {
+inline uint64_t scaleToRange(float val, float rMin, float rMax, uint64_t intMax) {
   // total width of range
   float valRange = rMax - rMin;
 
@@ -87,7 +88,7 @@ inline unsigned long scaleToRange(float val, float rMin, float rMax, unsigned lo
   float valDist = rMax - val;
 
   float rangePercent = 1.0 - (valDist / valRange);
-  return (unsigned long) ( (float)intMax * rangePercent);
+  return (uint64_t) ( (float)intMax * rangePercent);
 }
 
 void * mycalloc ( size_t num, size_t size ) {
@@ -98,15 +99,15 @@ void * mycalloc ( size_t num, size_t size ) {
   return retVal;
 }
 
-float **allocateFractal(long width, long height) {
+float **allocateFractal(size_t width, size_t height) {
   float **retPointer = (float **)mycalloc(height, sizeof(float *));
   if(retPointer != nullptr) {
-    for(int i = 0; i < height; i++) {
+    for(size_t i = 0; i < height; i++) {
       retPointer[i] = (float *)mycalloc(width, sizeof(float));
       if(retPointer[i] == nullptr) {
         exit(1);
       }
-      for(int j = 0; j < width; j++) {
+      for(size_t j = 0; j < width; j++) {
         retPointer[i][j] = 0.0;
       }
     }
@@ -126,7 +127,7 @@ void normalize(float **screen, int rangemax) {
   printf("Finding maxima and zero-weighted average\n");
   float maxima = -1.0;
   double avg_total = 0.0;
-  unsigned long avg_count = 0;
+  uint64_t avg_count = 0;
   for(int y = 0; y < SCREEN_HEIGHT; y++) {
     float *row = screen[y];
     for(int x = 0; x < SCREEN_WIDTH; x++) {
@@ -184,12 +185,12 @@ void dumpPPM(float **screen, char *filename) {
   fclose(outfile);
 }
 
-void iterate(unsigned long loopCount) {
+void iterate(uint64_t loopCount) {
   float oldX = frand(-2.0, 2.0);
   float oldY = frand(-2.0, 2.0);
   float newX, newY;
 
-  for(unsigned long i = 0; i < loopCount; i++) {
+  for(uint64_t i = 0; i < loopCount; i++) {
     newX = sin(A * oldY) - cos(B * oldX);
     newY = sin(C * oldX) - cos(D * oldY);
     plot(newX, newY);
@@ -208,7 +209,7 @@ void *threadWorker(void* x) {
   // process count
   // whilte count > 0
 
-  unsigned long count;
+  uint64_t count;
 
   if(LOOP_PER_THREAD > iterations) {
     count = iterations;
