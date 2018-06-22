@@ -1,9 +1,9 @@
 #include <cmath>
-#include <memory.h>
-#include <pthread.h>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <memory.h>
+#include <pthread.h>
 
 // globals-ish - deal with it
 #define SCREEN_WIDTH 12000
