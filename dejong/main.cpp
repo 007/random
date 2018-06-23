@@ -18,6 +18,7 @@
 
 // #define ITERATION_COUNT ((SCREEN_WIDTH * SCREEN_HEIGHT) * SCREEN_QUALITY)
 #define ITERATION_COUNT 3##141##592##653##589
+#define LOOP_PER_THREAD 1##073##741##824
 
 // zoom factor : 1.0 = standard, 2.0 = 2x zoom
 #define X_ZOOM 1.0f
@@ -41,7 +42,6 @@ float **Screen;
 pthread_mutex_t mutexIter;
 int64_t iterations = ITERATION_COUNT;
 int64_t progress = 0;
-#define LOOP_PER_THREAD 10##000##000
 /*
 #define A -2.25270f
 #define B -4.45858f
